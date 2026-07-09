@@ -96,8 +96,8 @@ class RepositoryIngestor:
                             file_path=item.path,
                             content=content,
                             language=language,
+                            repo=repo_name,
                             metadata={
-                                "repo": repo_name,
                                 "sha": item.sha,
                                 "size": item.size
                             }
