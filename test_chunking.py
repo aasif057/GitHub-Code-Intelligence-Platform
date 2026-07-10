@@ -73,7 +73,11 @@ def main():
     print(f"Chunk ID  : {largest.chunk_id}")
     print(f"Metadata  : {largest.metadata}")
     print("=" * 60)
-
-
+    avg_size = sum(len(c.content) for c in all_chunks) / len(all_chunks)
+    print(f"Average chunk size: {avg_size:.2f}")
+    sizes = [len(c.content) for c in all_chunks]
+    print(min(sizes))
+    print(max(sizes))
+    print(sum(sizes) / len(sizes))
 if __name__ == "__main__":
     main()
