@@ -5,16 +5,8 @@ from app.chunking.models import CodeChunk
 
 class BaseVectorStore(ABC):
 
-    def __init__(self, config):
-
-        self.config = config
-
     @abstractmethod
     def create_collection(self):
-        pass
-
-    @abstractmethod
-    def delete_collection(self):
         pass
 
     @abstractmethod
@@ -22,10 +14,14 @@ class BaseVectorStore(ABC):
         pass
 
     @abstractmethod
+    def delete_collection(self):
+        pass
+
+    @abstractmethod
     def index(
         self,
         chunks: list[CodeChunk],
-        vectors: list[list[float]]
+        vectors: list[list[float]],
     ):
         pass
 
@@ -33,6 +29,10 @@ class BaseVectorStore(ABC):
     def search(
         self,
         query_vector: list[float],
-        limit: int = 10,
+        limit: int = 5,
     ):
+        pass
+
+    @abstractmethod
+    def count(self) -> int:
         pass

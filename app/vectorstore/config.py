@@ -4,16 +4,16 @@ from dataclasses import dataclass
 @dataclass
 class VectorStoreConfig:
 
-    provider: str = "qdrant"
+    collection_name: str
+
+    embedding_dimension: int
+
+    distance_metric: str = "cosine"
+
+    recreate_collection: bool = False
+
+    batch_size: int = 128
 
     host: str = "localhost"
 
     port: int = 6333
-
-    collection_name: str = "github_chunks"
-
-    vector_size: int = 768
-
-    distance: str = "cosine"
-
-    recreate_collection: bool = False
