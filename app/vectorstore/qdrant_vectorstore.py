@@ -1,11 +1,12 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
+    PointStruct,
     VectorParams,
 )
-
+from app.vectorstore.payload_builder import PayloadBuilder
 from app.vectorstore.base_vectorstore import BaseVectorStore
-
+from app.vectorstore.search_result import SearchResult
 
 class QdrantVectorStore(BaseVectorStore):
 
@@ -85,3 +86,80 @@ class QdrantVectorStore(BaseVectorStore):
         )
 
         return result.count
+    def upsert(
+        self,
+        chunks,
+        vectors,
+    ):
+
+        self.ensure_collection()
+
+        points = list(
+            self._build_points(
+                chunks,
+                vectors,
+            )
+        )
+
+        self.client.upsert(
+            collection_name=self.config.collection_name,
+            points=points,
+            wait=True,
+        )
+    
+    def search(
+        self,
+        query_vector,
+        limit=5,
+    ):
+
+        response = self.client.query_points(
+            collection_name=self.config.collection_name,
+            query=query_vector,
+            limit=limit,
+            with_payload=True,
+        )
+
+        results = []
+
+        for point in response.points:
+
+            chunk = PayloadBuilder.parse(
+                point.payload
+            )
+
+            results.append(
+                SearchResult(
+                    chunk=chunk,
+                    score=point.score,
+                )
+            )
+
+        return results
+    
+    def _build_points(
+        self,
+        chunks,
+        vectors,
+    ):
+        """
+        Convert CodeChunks and their embeddings
+        into Qdrant PointStruct objects.
+        """
+
+        if len(chunks) != len(vectors):
+            raise ValueError(
+                "Number of chunks and vectors must match."
+            )
+
+        for chunk, vector in zip(chunks, vectors):
+
+            payload = PayloadBuilder.build(
+                chunk
+            )
+
+            yield PointStruct(
+                id=chunk.chunk_id,
+                vector=vector,
+                payload=payload,
+            )

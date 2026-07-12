@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 
 from app.chunking.models import CodeChunk
+from app.vectorstore.search_result import SearchResult
 
 
 class BaseVectorStore(ABC):
 
     @abstractmethod
-    def create_collection(self):
+    def ensure_collection(self):
         pass
 
     @abstractmethod
@@ -18,7 +19,7 @@ class BaseVectorStore(ABC):
         pass
 
     @abstractmethod
-    def index(
+    def upsert(
         self,
         chunks: list[CodeChunk],
         vectors: list[list[float]],
@@ -30,7 +31,7 @@ class BaseVectorStore(ABC):
         self,
         query_vector: list[float],
         limit: int = 5,
-    ):
+    ) -> list[SearchResult]:
         pass
 
     @abstractmethod
