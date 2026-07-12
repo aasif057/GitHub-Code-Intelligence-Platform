@@ -1,3 +1,4 @@
+import uuid
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
@@ -7,6 +8,7 @@ from qdrant_client.models import (
 from app.vectorstore.payload_builder import PayloadBuilder
 from app.vectorstore.base_vectorstore import BaseVectorStore
 from app.vectorstore.search_result import SearchResult
+
 
 class QdrantVectorStore(BaseVectorStore):
 
@@ -157,9 +159,15 @@ class QdrantVectorStore(BaseVectorStore):
             payload = PayloadBuilder.build(
                 chunk
             )
+            point_id = str(
+                uuid.uuid5(
+                    uuid.NAMESPACE_DNS,
+                    chunk.chunk_id,
+                )
+            )
 
             yield PointStruct(
-                id=chunk.chunk_id,
+                id=point_id,
                 vector=vector,
                 payload=payload,
             )
