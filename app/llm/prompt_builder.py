@@ -1,9 +1,11 @@
+from langchain_core.prompts import ChatPromptTemplate
+
 from app.retrieval.retrieval_result import RetrievalResult
 
 
 class PromptBuilder:
     """
-    Builds prompts for the LLM using retrieved repository context.
+    Builds LangChain chat prompts using retrieved repository context.
     """
 
     SYSTEM_PROMPT = """
@@ -15,46 +17,47 @@ Guidelines:
 - Use the retrieved code as your primary source.
 - Mention relevant file names whenever possible.
 - Mention function or class names whenever possible.
-- If the context is insufficient, clearly state that.
+- If the provided context is insufficient, clearly state that.
 - Do NOT invent implementation details.
 - Keep answers concise, technical, and accurate.
 - When multiple files are relevant, explain how they relate.
+- When referring to code, cite the corresponding file.
 """.strip()
 
     @staticmethod
     def build(
         question: str,
         results: list[RetrievalResult],
-    ) -> str:
+    ) -> ChatPromptTemplate:
         """
-        Builds the complete prompt sent to the LLM.
+        Builds a LangChain ChatPromptTemplate.
         """
 
-        context = PromptBuilder._build_context(
-            results
-        )
+        context = PromptBuilder._build_context(results)
 
-        prompt = f"""
-{PromptBuilder.SYSTEM_PROMPT}
-
-===========================
+        return ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    PromptBuilder.SYSTEM_PROMPT,
+                ),
+                (
+                    "human",
+                    f"""
 Repository Context
-===========================
+==================
 
 {context}
 
-===========================
+----------------------------
+
 User Question
-===========================
 
 {question}
-
-===========================
-Answer
-===========================
-""".strip()
-
-        return prompt
+""".strip(),
+                ),
+            ]
+        )
 
     @staticmethod
     def _build_context(
@@ -97,4 +100,4 @@ Code:
 
             sections.append(section)
 
-        return "\n\n" + ("\n\n" + "-" * 80 + "\n\n").join(sections)
+        return "\n\n" + ("\n\n" + ("-" * 80) + "\n\n").join(sections)
