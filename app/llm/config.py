@@ -3,15 +3,10 @@ from dataclasses import dataclass
 
 @dataclass
 class LLMConfig:
-
-    provider: str = "gemini"
-
-    model_name: str = "gemini-2.5-pro"
+    provider: str
+    model_name: str
+    api_key: str
 
     temperature: float = 0.0
-
     max_tokens: int | None = None
-
-    timeout: int = 60
-
-    api_key: str | None = None
+    timeout: int | None = None

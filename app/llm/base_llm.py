@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from app.llm.config import LLMConfig
 from app.llm.response import LLMResponse
-
+from langchain_core.prompts import ChatPromptTemplate
 
 class BaseLLM(ABC):
     """
@@ -19,11 +19,8 @@ class BaseLLM(ABC):
     @abstractmethod
     def generate(
         self,
-        prompt: str,
+        prompt: ChatPromptTemplate,
     ) -> LLMResponse:
-        """
-        Generate a response from the LLM.
-        """
         pass
 
     @abstractmethod
